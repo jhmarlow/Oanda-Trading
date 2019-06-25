@@ -5,12 +5,15 @@ from dateutil import parser
 from pandas.plotting import register_matplotlib_converters
 import oandapyV20.endpoints.instruments as instruments
 import numpy as np
+import datetime
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 import seaborn as sns
-
+from mpl_finance import candlestick_ohlc
+# from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mdates
 # Set figure style
 sns.set()
 # sns.set(style="ticks", context="talk")
@@ -30,7 +33,7 @@ client = opy.API(access_token=access_token)
 # Setup request parameters
 instrument_names = ["WHEAT_USD", "SUGAR_USD", "XCU_USD", "BCO_USD"]
 
-fig, axs = plt.subplots(4,1)
+#fig, axs = plt.subplots(4,1)
 
 data_dictionary = {}
 for x, instrument in enumerate(instrument_names):
@@ -63,11 +66,27 @@ for x, instrument in enumerate(instrument_names):
     data_dictionary[instrument] = df
     print(df.head(n=10))
 
-    axs[x].plot(df['Open'], linewidth=0.75, label='Open')
-    axs[x].plot(df['High'], linewidth=0.75, label='High')
-    axs[x].plot(df['Low'], linewidth=0.75, label='Low')
-    axs[x].plot(df['Close'], linewidth=0.75, label='Close')
-    plt.xticks(rotation=90)
-    axs[x].set_ylabel(instrument)
-    axs[x].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # axs[x].plot(df['Open'], linewidth=0.75, label='Open')
+    # axs[x].plot(df['High'], linewidth=0.75, label='High')
+    # axs[x].plot(df['Low'], linewidth=0.75, label='Low')
+    # axs[x].plot(df['Close'], linewidth=0.75, label='Close')
+    # plt.xticks(rotation=90)
+    # axs[x].set_ylabel(instrument)
+    # axs[x].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    df['Time'] = df.index
+
+    df['Time'] = pd.to_datetime(df['Time'])
+    df["Date"] = df["Time"].apply(mdates.date2num)
+    # for x in range(0, len(df.index)-1):
+    #     val_to_append = df.index[x].timestamp()
+    #     datetime.datetime.fromtimestamp(i)
+    #     time_flt.append(val_to_append)
+    f1, ax = plt.subplots(figsize = (10,5))
+    ohlc = df[['Date', 'Open', 'High', 'Low', 'Close']]
+
+
+    # plot the candlesticks
+    candlestick_ohlc(ax, ohlc.values, width=.6, colorup='green', colordown='red')
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+
 plt.show()
